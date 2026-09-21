@@ -38,6 +38,19 @@ API = "https://api.github.com"
 HERE = pathlib.Path(__file__).resolve().parent.parent   # 仓库根目录
 
 
+def default_token() -> str:
+    """取 token：优先环境变量；Windows 下若进程环境未刷新则回退读用户级注册表。"""
+    t = os.environ.get("GH_TOKEN", "")
+    if t or os.name != "nt":
+        return t
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as k:
+            return winreg.QueryValueEx(k, "GH_TOKEN")[0]
+    except OSError:
+        return ""
+
+
 def req(method: str, path: str, token: str, data=None):
     body = json.dumps(data).encode("utf-8") if data is not None else None
     r = urllib.request.Request(API + path, data=body, method=method)
@@ -57,7 +70,7 @@ def req(method: str, path: str, token: str, data=None):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--token", default=os.environ.get("GH_TOKEN", ""))
+    ap.add_argument("--token", default=default_token())
     ap.add_argument("--repo", default="longyan-water-ha")
     ap.add_argument("--msg", default="chore: 同步本地更新")
     ap.add_argument("--desc", default="龙岩水发自来水 Home Assistant 集成"
