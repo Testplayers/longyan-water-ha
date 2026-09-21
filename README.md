@@ -67,6 +67,7 @@ longyan-water-ha/
 ├── docs/                      # 文档
 └── tools/
     ├── deploy.py              # 一键部署到远程 HA（SSH 流式传输）
+    ├── publish.py             # 一键把本仓库同步到 GitHub（改完代码发布用）
     └── gen_captcha_templates.py # 重新生成验证码模板
 ```
 
